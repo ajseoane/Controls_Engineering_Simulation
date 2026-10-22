@@ -4,6 +4,27 @@
 
 Controls Engineering Simulation (October 2026). Independent educational ride-station controls demonstration; not an actual PLC or safety-rated system.
 
+## Project Screenshots
+
+### HMI Dashboard — READY State
+Interactive operator interface displaying controller state,
+digital inputs, dispatch controls, and scan activity.
+
+![HMI Dashboard](screenshots/HMI%20Dashboard%20%E2%80%94%20READY%20State.png)
+
+### Ladder Logic Visualization
+Read-only PLC-inspired ladder monitoring with instruction
+status and animated power flow.
+
+![Ladder Logic](screenshots/Ladder%20Logic%20Visualization.png)
+
+### Fault Diagnostics — Latched Alarm
+Simulated equipment fault detection, latched alarm
+register, and operator reset functionality.
+
+![Fault Diagnostics](screenshots/Fault%20Diagnostics%20%E2%80%94%20Latched%20Alarm.png)
+
+
 ## 2. Architecture
 
 dashboard.html (browser HMI) communicates over localhost HTTP/JSON with api_server.py. The API owns one shared Python RideStation from ride_sim.py. A background worker optionally scans every 500 ms; browser status refresh is approximately 250 ms. Phase 3/4 ladder displays derive their indications from controller state and do not execute ladder logic.
