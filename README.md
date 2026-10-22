@@ -1,134 +1,194 @@
+# Controls Engineering Simulation
+
 ### Automated Ride Station Control & Fault Diagnostics
 
-**Python | Industrial Automation | SCADA/HMI | PLC-Inspired Logic | Fault Diagnostics**
+**Python · Industrial Automation · SCADA/HMI · PLC-Inspired Monitoring · Fault Diagnostics**
 
-An independent controls engineering work sample demonstrating
-the design and implementation of a Python-based automated
-ride station control simulator.
+An independent controls-engineering work sample demonstrating a Python-based automated ride station simulator. It combines a shared controller state machine, local HTTP/JSON API, interactive browser HMI, automatic scan cycles, read-only ladder and instruction visualization, and latched fault diagnostics.
 
-The project combines a Python controller, REST-style HTTP API,
-interactive browser HMI, automatic scan cycles, PLC-inspired
-ladder logic visualization, and equipment fault diagnostics.
+**[View the complete technical portfolio (PDF)](Controls%20Engineering%20Technical%20Work%20Sample%20%E2%80%94%20Automated%20Ride%20Station%20Control%20%26%20Fault%20Diagnostics.pdf)**
 
-Developed to demonstrate practical skills in industrial
-automation, control systems, operator interfaces, and
-troubleshooting.
+> **Scope:** Educational simulation only. No physical PLC or ride hardware is connected. The system is not safety-rated; ladder logic is visualized, not executed.
 
-## Key Features
+## Key features
 
-- **Python Controller:** Simulated ride station state machine
-  with IDLE, READY, DISPATCHED, AWAY, and FAULT states.
-- **Interactive HMI:** Browser-based dashboard displaying
-  controller status, digital inputs, alarms, and operator controls.
-- **Automatic Scanning:** Configurable 500 ms simulation scans
-  with live status updates.
-- **Ladder Logic Visualization:** Read-only PLC-inspired
-  monitoring with XIC, XIO, OTE, OTL, OTU, and TON indications.
-- **Fault Diagnostics:** Simulated communication, sensor,
-  drive readiness, and emergency-stop faults with alarm latching.
-- **Operator Controls:** Dispatch, arrival, reset, restart,
-  and manual/automatic scanning.
-- **Verification:** Python unit tests and documented
-  operational scenarios.
+- **Controller states:** IDLE, READY, DISPATCHED, AWAY, and FAULT.
+- **Interactive HMI:** Digital inputs, operator controls, controller state, alarms, and scan events.
+- **Automatic scanning:** Optional 500 ms controller scan cycle, with manual scanning available.
+- **PLC-inspired monitoring:** Read-only ladder power flow and XIC, XIO, OTE, OTL, OTU, and TON instruction indications.
+- **Diagnostics:** Simulated communications, sensor, drive, and E-stop faults with latched alarms and reset logic.
+- **Verification:** Python unit tests, recorded scenario traces, and a documented acceptance walkthrough.
 
-## Technical Portfolio
+## Technology stack
 
-The complete engineering work sample includes system
-architecture, controller sequencing, HMI screenshots,
-fault diagnostics, and technical testing documentation.
+| Area | Implementation |
+| --- | --- |
+| Controller and CLI | Python (`ride_sim.py`) |
+| API and automatic scan worker | Python standard library (`api_server.py`) |
+| Browser HMI | HTML, CSS, JavaScript (`dashboard.html`) |
+| Communications | Local HTTP/JSON |
+| Logic visualization | Read-only PLC-inspired ladder and instruction monitor |
+| Tests | Python `unittest` |
+| Development | VS Code, Git, GitHub |
 
-**[View the Controls Engineering Technical Portfolio (PDF)](Controls%20Engineering%20Technical%20Work%20Sample%20%E2%80%94%20Automated%20Ride%20Station%20Control%20%26%20Fault%20Diagnostics.pdf)**
+## Project screenshots
 
-> **Project scope:** Independent educational simulation.
-> No physical PLC or ride hardware is connected.
-> The simulator is not a safety-rated control system.
-> Ladder logic is visualized, not executed.
-## Project Screenshots
+### HMI dashboard — READY state
 
-### HMI Dashboard — READY State
-Interactive operator interface displaying controller state,
-digital inputs, dispatch controls, and scan activity.
+Operator interface showing controller state, digital inputs, dispatch controls, and scan activity.
 
-![HMI Dashboard](screenshots/HMI%20Dashboard%20%E2%80%94%20READY%20State.png)
+![HMI dashboard READY state](screenshots/HMI%20Dashboard%20%E2%80%94%20READY%20State.png)
 
-### Ladder Logic Visualization
-Read-only PLC-inspired ladder monitoring with instruction
-status and animated power flow.
+### Ladder logic visualization
 
-![Ladder Logic](screenshots/Ladder%20Logic%20Visualization.png)
+Read-only ladder monitor showing instruction status and animated power flow based on Python controller state.
 
-### Fault Diagnostics — Latched Alarm
-Simulated equipment fault detection, latched alarm
-register, and operator reset functionality.
+![Ladder logic visualization](screenshots/Ladder%20Logic%20Visualization.png)
 
-![Fault Diagnostics](screenshots/Fault%20Diagnostics%20%E2%80%94%20Latched%20Alarm.png)
+### Fault diagnostics — latched alarm
 
+Simulated equipment fault detection, alarm register, and operator reset behavior.
 
-## 2. Architecture
+![Fault diagnostics latched alarm](screenshots/Fault%20Diagnostics%20%E2%80%94%20Latched%20Alarm.png)
 
-dashboard.html (browser HMI) communicates over localhost HTTP/JSON with api_server.py. The API owns one shared Python RideStation from ride_sim.py. A background worker optionally scans every 500 ms; browser status refresh is approximately 250 ms. Phase 3/4 ladder displays derive their indications from controller state and do not execute ladder logic.
+## Architecture
 
-## 3. Phase 1 — Core controller and connected HMI
+`dashboard.html` communicates over localhost HTTP/JSON with `api_server.py`. The API owns one shared Python `RideStation` from `ride_sim.py`. A background worker can scan every 500 ms; the browser refreshes status approximately every 250 ms. Phase 3/4 ladder displays derive their indications from controller state and **do not execute ladder logic**.
 
-Eight digital inputs, IDLE/READY/DISPATCHED/AWAY/FAULT states, dispatch permissives, diagnostic fault latching, reset, arrival, scan event history. The dashboard uses API endpoints instead of an independent JavaScript controller.
+## Development phases
 
-## 4. Phase 2 — Automatic scans
+### Phase 1 — Core controller and connected HMI
 
-Start/stop automatic 500 ms scans; manual scan remains available. Live dashboard refresh, scan counter, recent scan log, active faults and latched alarm register.
+Eight digital inputs; IDLE/READY/DISPATCHED/AWAY/FAULT states; dispatch permissives; diagnostic fault latching; reset, arrival, and scan event history. The dashboard uses API endpoints rather than an independent JavaScript controller.
 
-## 5. Phase 3 — Visual ladder monitor
+### Phase 2 — Automatic scans
 
-Read-only, RSLogix-inspired rung visualization: diagnostic health, dispatch permissives, dispatch enable, fault and train-away indications. Contact TRUE/FALSE status and animated power flow reflect the current Python state; the display is not executable PLC logic.
+Start or stop automatic 500 ms scans; manual scan remains available. Live dashboard refresh, scan counter, recent scan log, active faults, and latched alarm register.
 
-## 6. Phase 4 — Instruction monitor
+### Phase 3 — Visual ladder monitor
 
-XIC (examine TRUE), XIO (examine FALSE), OTE (non-retentive coil-style indication), OTL (latch indication), OTU (unlatch indication), TON (on-delay timer monitor). Separate instruction-status panel and live visual rung flow. AWAY_DWELL has 2,000 ms preset; EN=enabled while AWAY, TT=timing, DN=done when accumulated time reaches preset. The monitoring timer uses elapsed time between scans and resets outside AWAY. Its DN bit does not command ride motion.
+Read-only, RSLogix-inspired rung visualization for diagnostic health, dispatch permissives, dispatch enable, fault, and train-away indications. TRUE/FALSE contact status and animated power flow reflect the current Python state; this is not executable PLC logic.
 
-## 7. Inputs and permissives
+### Phase 4 — Instruction monitor
 
-train_present, gate_closed, restraints_locked, block_clear, drive_ready, estop_healthy, plc_comms_ok, sensor_consistent. All eight must be TRUE for dispatch. Diagnostic faults are generated by estop_healthy, plc_comms_ok, sensor_consistent, and drive_ready being FALSE. Gate/restraint/block loss inhibits dispatch without automatically latching a diagnostic fault.
+Instruction indications include XIC (examine TRUE), XIO (examine FALSE), OTE (non-retentive coil-style indication), OTL (latch indication), OTU (unlatch indication), and TON (on-delay timer monitor). A separate instruction-status panel accompanies live visual rung flow.
 
-## 8. Dispatch, departure and arrival
+`AWAY_DWELL` has a 2,000 ms preset: EN is enabled while AWAY, TT indicates timing, and DN becomes true when accumulated time reaches the preset. The monitoring timer uses elapsed time between scans and resets outside AWAY. Its DN bit does not command ride motion.
 
-With all inputs TRUE, SCAN moves IDLE to READY. DISPATCH moves READY to DISPATCHED. Next scan moves to AWAY and sets train_present=FALSE and block_clear=FALSE. To simulate return, set block_clear=TRUE while AWAY, then request ARRIVE; train_present becomes TRUE and state becomes IDLE. Next scan can restore READY. AUTO mode may make IDLE visible only briefly.
+## Inputs and dispatch permissives
 
-## 9. Fault/reset sequence
+The eight modeled digital inputs are:
 
-Set plc_comms_ok=FALSE and scan: FAULT with PLC_COMMUNICATION_LOSS latched. Restoring communications does not clear the latch. RESET requires no active diagnostic faults and all eight permissives TRUE. Other modeled diagnostic alarms: SENSOR_DISAGREEMENT, DRIVE_NOT_READY and E_STOP_CIRCUIT_OPEN.
+| Input | Meaning |
+| --- | --- |
+| `train_present` | Train detected at station |
+| `gate_closed` | Station gate closed |
+| `restraints_locked` | Restraints locked |
+| `block_clear` | Downstream block available |
+| `drive_ready` | Drive ready |
+| `estop_healthy` | E-stop circuit healthy |
+| `plc_comms_ok` | Simulated PLC communications healthy |
+| `sensor_consistent` | Sensor readings consistent |
 
-## 10. Installation
+All eight must be TRUE to permit dispatch. FALSE values for `estop_healthy`, `plc_comms_ok`, `sensor_consistent`, or `drive_ready` generate diagnostic faults. Gate, restraint, or block loss inhibits dispatch without automatically latching a diagnostic fault in this model.
 
-In VS Code open the existing project folder. Create environment once: py -m venv .venv. Activate in PowerShell: .\.venv\Scripts\Activate.ps1. Run: python api_server.py. Open http://127.0.0.1:8000/dashboard.html. Ctrl+F5 refreshes the browser; Ctrl+C stops the server. No third-party packages are needed for the Phase 4 server.
+## Dispatch, departure, and arrival
 
-## 11. Local API
+With all inputs TRUE, SCAN moves IDLE to READY. DISPATCH moves READY to DISPATCHED. The next scan moves to AWAY and sets `train_present=FALSE` and `block_clear=FALSE`.
 
-GET /api/status. POST /api/scan, /api/dispatch, /api/reset, /api/arrive, /api/input, /api/restart, /api/auto/start, /api/auto/stop. Input payload example: {"name":"plc_comms_ok","value":false}. Controller access is serialized by a Python lock. Commands can trigger scans while AUTO is running.
+To simulate return, set `block_clear=TRUE` while AWAY, then request ARRIVE; `train_present` becomes TRUE and the state returns to IDLE. The next scan can restore READY. In AUTO mode, IDLE may be visible only briefly.
 
-## 12. CLI and verification
+## Fault and reset sequence
 
-Run python ride_sim.py for interactive commands: status, scan, dispatch, arrive, reset, set <input> <0|1>, quit. Run python -m unittest -v test_ride_sim.py and python ride_sim.py --scenarios if the original test files are present. The original work sample reported 10 Python unit tests passed and six scenario traces; these are historical original-controller results, not proof of automated Phase 4 browser validation.
+For example, set `plc_comms_ok=FALSE` and scan. The controller enters FAULT and latches `PLC_COMMUNICATION_LOSS`. Restoring communications alone does not clear the latch. RESET requires no active diagnostic faults and all eight permissives TRUE.
 
-## 13. Troubleshooting
+Other modeled diagnostic alarms include `SENSOR_DISAGREEMENT`, `DRIVE_NOT_READY`, and `E_STOP_CIRCUIT_OPEN`.
 
-At station> type quit before running the server. Do not type PowerShell prompt text as commands. If port 8000 is occupied, stop the prior server with Ctrl+C. If the dashboard looks old, confirm copied files and use Ctrl+F5. Arrival requires AWAY and block_clear TRUE. Fault reset requires all permissives TRUE.
+## Installation and launch (Windows / VS Code)
 
-## 14. Professional context and limitations
+Open the project folder in VS Code and run the following in PowerShell:
 
-Independent portfolio exercise prepared for a controls-engineering application. Prior manufacturing work included Wonderware InTouch SCADA/HMI development, Allen-Bradley integration and limited online RSLogix 500 ladder monitoring; it did not involve writing or modifying PLC ladder programs. This simulator omits real hardware, redundant safety systems, deterministic real-time scheduling, certified block control, braking and motion dynamics. Phase 5 executed ladder logic is intentionally excluded.
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python api_server.py
+```
 
-## File inventory
+Open **http://127.0.0.1:8000/dashboard.html** in a browser. Use **Ctrl+F5** for a hard refresh and **Ctrl+C** in the terminal to stop the server. The Phase 4 server does not require third-party Python packages.
 
-- `ride_sim.py`: original Python RideStation state machine and CLI.
-- `api_server.py`: Phase 4 localhost API, auto-scan worker, instruction monitor.
-- `dashboard.html`: Phase 4 browser HMI and ladder/instruction panels.
-- `test_ride_sim.py`: original Python tests, if present.
-- `scenario_results.json` and `test_results.txt`: original evidence, if present.
-- `Controls_Engineering_Work_Sample.pdf`: engineering portfolio report.
+## Local API
 
-## Suggested acceptance test
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/status` | Read controller and monitor status |
+| POST | `/api/scan` | Execute a manual scan |
+| POST | `/api/dispatch` | Request dispatch |
+| POST | `/api/reset` | Reset eligible latched faults |
+| POST | `/api/arrive` | Simulate arrival |
+| POST | `/api/input` | Set a simulated input |
+| POST | `/api/restart` | Restart simulation |
+| POST | `/api/auto/start` | Start automatic scans |
+| POST | `/api/auto/stop` | Stop automatic scans |
 
-1. Restart; scan to READY; dispatch to DISPATCHED; scan to AWAY.
-2. Observe AWAY_DWELL EN, TT, ACC and DN at 2 seconds.
-3. Set block_clear TRUE; arrive; scan to READY.
-4. Set plc_comms_ok FALSE; scan to FAULT; restore input; reset.
-5. Start AUTO; confirm scan counter increases; stop AUTO; confirm it stops.
+Example input JSON:
+
+```json
+{"name": "plc_comms_ok", "value": false}
+```
+
+Controller access is serialized with a Python lock. Commands can trigger scans while AUTO mode is running.
+
+## CLI and verification
+
+Run the interactive controller:
+
+```powershell
+python ride_sim.py
+```
+
+Available commands include `status`, `scan`, `dispatch`, `arrive`, `reset`, `set <input> <0|1>`, and `quit`.
+
+Run the included original-controller tests and scenarios:
+
+```powershell
+python -m unittest -v test_ride_sim.py
+python ride_sim.py --scenarios
+```
+
+The original work sample reported **10 Python unit tests passed** and **six scenario traces**. These are historical original-controller results, **not evidence of automated Phase 4 browser validation**.
+
+## Suggested acceptance walkthrough
+
+1. Restart, scan to READY, dispatch to DISPATCHED, then scan to AWAY.
+2. Observe `AWAY_DWELL` EN, TT, ACC, and DN at approximately 2 seconds.
+3. Set `block_clear=TRUE`, request ARRIVE, and scan to READY.
+4. Set `plc_comms_ok=FALSE`, scan to FAULT, restore the input, and reset.
+5. Start AUTO, confirm the scan counter increases, then stop AUTO and confirm it stops.
+
+## Troubleshooting
+
+- At the `station>` prompt, enter `quit` before starting the API server.
+- Do not type the PowerShell prompt itself as part of a command.
+- If port 8000 is occupied, stop the prior server using Ctrl+C.
+- If the dashboard looks outdated, verify the files and use Ctrl+F5.
+- Arrival requires AWAY state and `block_clear=TRUE`.
+- Fault reset requires all permissives TRUE and no active diagnostic faults.
+
+## Repository files
+
+| File | Purpose |
+| --- | --- |
+| `ride_sim.py` | Python `RideStation` state machine and CLI |
+| `api_server.py` | Local API, automatic scan worker, instruction monitor |
+| `dashboard.html` | Browser HMI and ladder/instruction panels |
+| `test_ride_sim.py` | Original Python unit tests |
+| `scenario_results.json` | Recorded scenario evidence |
+| `test_results.txt` | Recorded test results |
+| `screenshots/` | HMI, ladder, and fault diagnostics screenshots |
+| `Controls Engineering Technical Work Sample — Automated Ride Station Control & Fault Diagnostics.pdf` | Engineering portfolio report |
+
+## Professional context and limitations
+
+This independent portfolio exercise was prepared for a controls-engineering application. Prior manufacturing experience included Wonderware InTouch SCADA/HMI development, Allen-Bradley PLC integration, and limited online RSLogix 500 ladder monitoring; it **did not include writing or modifying PLC ladder programs**.
+
+The simulator omits real hardware, redundant safety systems, deterministic real-time scheduling, certified block control, braking, and motion dynamics. Phase 5 executable ladder logic is intentionally excluded.
