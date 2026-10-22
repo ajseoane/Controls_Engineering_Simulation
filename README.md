@@ -1,9 +1,48 @@
-# Controls Engineering Simulation
+### Automated Ride Station Control & Fault Diagnostics
 
-## 1. Overview
+**Python | Industrial Automation | SCADA/HMI | PLC-Inspired Logic | Fault Diagnostics**
 
-Controls Engineering Simulation (October 2026). Independent educational ride-station controls demonstration; not an actual PLC or safety-rated system.
+An independent controls engineering work sample demonstrating
+the design and implementation of a Python-based automated
+ride station control simulator.
 
+The project combines a Python controller, REST-style HTTP API,
+interactive browser HMI, automatic scan cycles, PLC-inspired
+ladder logic visualization, and equipment fault diagnostics.
+
+Developed to demonstrate practical skills in industrial
+automation, control systems, operator interfaces, and
+troubleshooting.
+
+## Key Features
+
+- **Python Controller:** Simulated ride station state machine
+  with IDLE, READY, DISPATCHED, AWAY, and FAULT states.
+- **Interactive HMI:** Browser-based dashboard displaying
+  controller status, digital inputs, alarms, and operator controls.
+- **Automatic Scanning:** Configurable 500 ms simulation scans
+  with live status updates.
+- **Ladder Logic Visualization:** Read-only PLC-inspired
+  monitoring with XIC, XIO, OTE, OTL, OTU, and TON indications.
+- **Fault Diagnostics:** Simulated communication, sensor,
+  drive readiness, and emergency-stop faults with alarm latching.
+- **Operator Controls:** Dispatch, arrival, reset, restart,
+  and manual/automatic scanning.
+- **Verification:** Python unit tests and documented
+  operational scenarios.
+
+## Technical Portfolio
+
+The complete engineering work sample includes system
+architecture, controller sequencing, HMI screenshots,
+fault diagnostics, and technical testing documentation.
+
+**[View the Controls Engineering Technical Portfolio (PDF)](Controls%20Engineering%20Technical%20Work%20Sample%20%E2%80%94%20Automated%20Ride%20Station%20Control%20%26%20Fault%20Diagnostics.pdf)**
+
+> **Project scope:** Independent educational simulation.
+> No physical PLC or ride hardware is connected.
+> The simulator is not a safety-rated control system.
+> Ladder logic is visualized, not executed.
 ## Project Screenshots
 
 ### HMI Dashboard — READY State
