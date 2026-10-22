@@ -1,0 +1,15 @@
+test_away_requires_block_clear_to_arrive (test_ride_sim.StationTests.test_away_requires_block_clear_to_arrive) ... ok
+test_block_occupied_prevents_dispatch (test_ride_sim.StationTests.test_block_occupied_prevents_dispatch) ... ok
+test_drive_not_ready (test_ride_sim.StationTests.test_drive_not_ready) ... ok
+test_estop (test_ride_sim.StationTests.test_estop) ... ok
+test_fault_latched_until_reset (test_ride_sim.StationTests.test_fault_latched_until_reset) ... ok
+test_gate_prevents_dispatch (test_ride_sim.StationTests.test_gate_prevents_dispatch) ... ok
+test_no_reset_with_fault_active (test_ride_sim.StationTests.test_no_reset_with_fault_active) ... ok
+test_nominal_dispatch (test_ride_sim.StationTests.test_nominal_dispatch) ... ok
+test_restraint_prevents_dispatch (test_ride_sim.StationTests.test_restraint_prevents_dispatch) ... ok
+test_sensor_disagreement (test_ride_sim.StationTests.test_sensor_disagreement) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.000s
+
+OK

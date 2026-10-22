@@ -1,0 +1,181 @@
+[
+  {
+    "scenario": "Nominal dispatch",
+    "steps": [
+      {
+        "step": "Initial scan",
+        "tick": 1,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      },
+      {
+        "step": "Dispatch request",
+        "tick": 2,
+        "state": "DISPATCHED",
+        "dispatch_permitted": false,
+        "alarms": []
+      },
+      {
+        "step": "Departure scan",
+        "tick": 3,
+        "state": "AWAY",
+        "dispatch_permitted": false,
+        "alarms": []
+      }
+    ]
+  },
+  {
+    "scenario": "Open gate blocks dispatch",
+    "steps": [
+      {
+        "step": "Gate open",
+        "tick": 1,
+        "state": "IDLE",
+        "dispatch_permitted": false,
+        "alarms": []
+      },
+      {
+        "step": "Dispatch request",
+        "tick": 2,
+        "state": "IDLE",
+        "dispatch_permitted": false,
+        "alarms": []
+      }
+    ]
+  },
+  {
+    "scenario": "PLC communication failure and reset",
+    "steps": [
+      {
+        "step": "Ready",
+        "tick": 1,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      },
+      {
+        "step": "Comms lost",
+        "tick": 2,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "PLC_COMMUNICATION_LOSS"
+        ]
+      },
+      {
+        "step": "Comms restored without reset",
+        "tick": 3,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "PLC_COMMUNICATION_LOSS"
+        ]
+      },
+      {
+        "step": "Operator reset",
+        "tick": 4,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      }
+    ]
+  },
+  {
+    "scenario": "Sensor disagreement latches fault",
+    "steps": [
+      {
+        "step": "Ready",
+        "tick": 1,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      },
+      {
+        "step": "Sensor mismatch",
+        "tick": 2,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "SENSOR_DISAGREEMENT"
+        ]
+      },
+      {
+        "step": "Mismatch fixed",
+        "tick": 3,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "SENSOR_DISAGREEMENT"
+        ]
+      },
+      {
+        "step": "Reset",
+        "tick": 4,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      }
+    ]
+  },
+  {
+    "scenario": "Drive fault",
+    "steps": [
+      {
+        "step": "Ready",
+        "tick": 1,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      },
+      {
+        "step": "Drive fault",
+        "tick": 2,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "DRIVE_NOT_READY"
+        ]
+      },
+      {
+        "step": "Dispatch blocked",
+        "tick": 3,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "DRIVE_NOT_READY"
+        ]
+      }
+    ]
+  },
+  {
+    "scenario": "E-stop circuit opens",
+    "steps": [
+      {
+        "step": "Ready",
+        "tick": 1,
+        "state": "READY",
+        "dispatch_permitted": true,
+        "alarms": []
+      },
+      {
+        "step": "E-stop open",
+        "tick": 2,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "E_STOP_CIRCUIT_OPEN"
+        ]
+      },
+      {
+        "step": "Dispatch blocked",
+        "tick": 3,
+        "state": "FAULT",
+        "dispatch_permitted": false,
+        "alarms": [
+          "E_STOP_CIRCUIT_OPEN"
+        ]
+      }
+    ]
+  }
+]

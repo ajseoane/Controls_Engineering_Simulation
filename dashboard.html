@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ride Station | Live HMI</title>
+<style>
+body{font:15px system-ui;background:#101b2b;color:#edf3fb;margin:0;padding:24px}main{max-width:1100px;margin:auto}h1{margin-bottom:4px}.sub{color:#a6b9d0}.panel{background:#1c2c40;padding:20px;border-radius:12px;margin:18px 0}button{background:#3b83ca;color:white;border:0;border-radius:6px;padding:11px 15px;margin:4px;cursor:pointer}button:hover{background:#5ca1e3}button:disabled{opacity:.4;cursor:not-allowed}.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.item{background:#273b50;padding:12px;border-radius:7px}.on{color:#75e0a7}.off{color:#ffb177}.state{font-size:30px;font-weight:800}pre{white-space:pre-wrap;max-height:320px;overflow:auto;background:#0c1724;padding:14px;border-radius:7px}.metrics{display:flex;gap:24px;flex-wrap:wrap}.error{color:#ffb177}.mode{font-weight:800;color:#75e0a7}
+
+.ladder-panel{overflow:hidden}.ladder-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#b9c8d8}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.dot.good{background:#75e0a7}.dot.bad{background:#ffb177}.ladder-scroll{overflow-x:auto;background:#101b2b;border:1px solid #39506a;border-radius:9px;margin-top:12px}.rung{padding:13px 18px 18px;border-bottom:1px solid #30445b;min-width:max-content}.rung:last-child{border-bottom:0}.rung-label{font-size:12px;color:#b8cce2;margin-bottom:12px}.rail{display:flex;align-items:center;min-width:max-content}.rail:before,.rail:after{content:'';height:58px;border-left:4px solid #71849b}.wire{height:3px;background:#6e829b;width:22px;flex-shrink:0}.wire.live{background:#75e0a7}.contact,.coil{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:100px;gap:6px}.contact-symbol,.coil-symbol{height:40px;display:flex;align-items:center;justify-content:center;font:700 26px ui-monospace,monospace;white-space:pre}.contact.good,.coil.good{color:#75e0a7}.contact.bad,.coil.bad{color:#ffb177}.contact-tag,.coil-tag{font:11px ui-monospace,monospace;max-width:130px;white-space:nowrap}.contact-state,.coil-state{font-size:10px;font-weight:700}.ladder-note{font-size:12px;color:#a6b9d0;margin-top:12px}
+
+/* Phase 4: scan-synchronized instructional power-flow */
+.ladder-scroll .wire.live{background:linear-gradient(90deg,#257a60,#7cf7a9,#257a60);background-size:200% 100%;animation:flow 1.2s linear infinite;box-shadow:0 0 8px #53dca477}
+@keyframes flow{to{background-position:-200% 0}}
+.instructions{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:10px}
+.instruction{background:#263a50;border:1px solid #425974;border-radius:9px;padding:13px}
+.instruction.active{border-color:#75e0a7}.instruction .type{font:bold 15px ui-monospace,monospace;color:#9bd1ff}
+.instruction .tag{font:12px ui-monospace,monospace;overflow-wrap:anywhere;color:#c7d7ea}
+.instruction .value{font-size:13px;margin-top:8px}
+.instruction .value.true{color:#75e0a7}.instruction .value.false{color:#ffb177}
+progress{width:100%;height:12px;accent-color:#75e0a7}
+@media(prefers-reduced-motion:reduce){.ladder-scroll .wire.live{animation:none}}
+</style></head><body><main>
+<h1>RIDE STATION CONTROL | LIVE SIMULATION</h1><div class="sub">Educational simulation · No PLC or physical ride connectivity · Not safety-rated</div>
+<div class="panel"><div class="sub">Controller state</div><div class="state" id="state">CONNECTING</div><p id="perm"></p><div class="metrics"><div>Mode: <span class="mode" id="mode">—</span></div><div>Scan interval: <strong id="interval">500 ms</strong></div><div>Scan counter: <strong id="ticks">0</strong></div><div>API: <strong id="connection">Connecting</strong></div></div><p><button id="start" onclick="action('auto/start')">START AUTO SCAN</button><button id="stop" onclick="action('auto/stop')">STOP AUTO SCAN</button><button id="manual" onclick="action('scan')">MANUAL SCAN</button></p><button onclick="action('dispatch')">REQUEST DISPATCH</button><button onclick="action('reset')">RESET FAULT</button><button onclick="action('arrive')">SIMULATE ARRIVAL</button><button onclick="action('restart')">RESTART</button></div>
+<div class="panel"><h2>Digital inputs</h2><div class="sub">Input changes take effect immediately; faults are evaluated on the next controller scan.</div><div class="inputs" id="inputs"></div></div>
+<div class="panel ladder-panel"><div class="ladder-head"><h2>Live ladder-logic monitor</h2><div class="legend"><span><i class="dot good"></i>TRUE / energized</span><span><i class="dot bad"></i>FALSE / de-energized</span></div></div><div class="sub">Read-only educational representation of Python controller conditions. Scroll horizontally to inspect every contact.</div><div id="ladder" class="ladder-scroll" aria-live="off">Waiting for controller...</div><div class="ladder-note">XIC contacts pass when the tag is TRUE; the XIO contact passes when its tag is FALSE. Rungs represent monitored conditions, not the internal implementation of certified PLC logic.</div></div>
+<div class="panel"><h2>Instruction-status monitor</h2>
+<div class="sub">Read-only XIC / XIO / OTE / OTL / OTU / TON instruction semantics. OTL and OTU reflect the existing Python alarm latch and reset behavior. The TON is an informational AWAY dwell timer, not a ride-control interlock.</div>
+<p class="sub">TON AWAY_DWELL: <strong id="tonflags">EN=0 · TT=0 · DN=0</strong></p>
+<progress id="tonprogress" max="2000" value="0"></progress> <span id="tontext">0 / 2000 ms</span>
+<div id="instructions" class="instructions" aria-live="off"></div></div>
+<div class="panel"><h2>Fault diagnostics</h2><p>Active faults: <strong id="active">None</strong></p><p>Latched alarms: <strong id="alarms">None</strong></p></div>
+<div class="panel"><h2>Recent scan log (last 100)</h2><pre id="log">No scans yet.</pre></div><p class="error" id="error" role="alert"></p>
+</main><script>
+const names={train_present:'Train Present',gate_closed:'Station Gate Closed',restraints_locked:'Restraints Locked',block_clear:'Downstream Block Clear',drive_ready:'Drive Ready',estop_healthy:'E-stop Circuit Healthy',plc_comms_ok:'PLC Communications OK',sensor_consistent:'Sensors Consistent'};
+let s=null, busy=false, polling=false;
+async function request(path,body){const options=body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)};const r=await fetch('/api/'+path,options);const data=await r.json();if(!r.ok)throw Error(data.error||'Request failed');return data}
+async function action(path,body={}){if(busy)return;busy=true;try{s=await request(path,body);render();document.getElementById('error').textContent=''}catch(e){document.getElementById('error').textContent=e.message}finally{busy=false}}
+function toggle(k){if(s)action('input',{name:k,value:!s.inputs[k]})}
+const ladderRungs=[
+ {name:'RUNG 000 · Diagnostic inputs healthy',tags:['estop_healthy','plc_comms_ok','sensor_consistent','drive_ready'],coil:'DIAGNOSTICS_OK',out:d=>['estop_healthy','plc_comms_ok','sensor_consistent','drive_ready'].every(k=>d.inputs[k])},
+ {name:'RUNG 001 · Station dispatch permissives',tags:['train_present','gate_closed','restraints_locked','block_clear','drive_ready','estop_healthy','plc_comms_ok','sensor_consistent'],coil:'PERMISSIVES_OK',out:d=>d.permissives},
+ {name:'RUNG 002 · Dispatch enabled',tags:['READY_STATE','PERMISSIVES_OK'],coil:'DISPATCH_ENABLE',out:d=>d.dispatch_permitted},
+ {name:'RUNG 003 · Fault state indication',tags:['FAULT_STATE'],coil:'FAULT_INDICATOR',out:d=>d.state==='FAULT'},
+ {name:'RUNG 004 · Train away indication',tags:['AWAY_STATE'],coil:'TRAIN_AWAY',out:d=>d.state==='AWAY'},
+ {name:'RUNG 005 · XIO comms failure (normally closed instruction)',tags:['NOT_COMMS_OK'],coil:'COMMS_LOST',out:d=>!d.inputs.plc_comms_ok},
+ {name:'RUNG 006 · OTL alarm latch (observed)',tags:['ALARM_LATCHED'],coil:'LATCHED_ALARM',out:d=>d.alarms.length>0},
+ {name:'RUNG 007 · OTU latch cleared (observed)',tags:['NO_ALARM'],coil:'LATCH_CLEAR',out:d=>d.alarms.length===0},
+ {name:'RUNG 008 · TON away dwell done (monitor only)',tags:['AWAY_STATE','TON_DONE'],coil:'AWAY_DWELL_DN',out:d=>!!d.ladder_monitor?.ton.dn}
+];
+function contactValue(tag,d){if(tag in d.inputs)return !!d.inputs[tag];if(tag==='READY_STATE')return d.state==='READY';if(tag==='FAULT_STATE')return d.state==='FAULT';if(tag==='AWAY_STATE')return d.state==='AWAY';if(tag==='NOT_COMMS_OK')return !d.inputs.plc_comms_ok;if(tag==='ALARM_LATCHED')return d.alarms.length>0;if(tag==='NO_ALARM')return d.alarms.length===0;if(tag==='TON_DONE')return !!d.ladder_monitor?.ton.dn;if(tag==='PERMISSIVES_OK')return !!d.permissives;return false}
+function renderLadder(d){document.getElementById('ladder').innerHTML=ladderRungs.map(r=>{let continuity=true;const contacts=r.tags.map(tag=>{const value=contactValue(tag,d);const preceding=continuity;continuity=continuity&&value;return `<span class="wire ${preceding?'live':''}"></span><span class="contact ${value?'good':'bad'}" title="${tag}: ${value?'TRUE':'FALSE'}"><span class="contact-symbol">${tag==='NOT_COMMS_OK'?'─|/|─':'─| |─'}</span><span class="contact-tag">${tag}</span><span class="contact-state">${value?'TRUE':'FALSE'}</span></span>`}).join('');const energized=!!r.out(d);return `<div class="rung"><div class="rung-label">${r.name}</div><div class="rail"><span class="wire live"></span>${contacts}<span class="wire ${continuity?'live':''}"></span><span class="coil ${energized?'good':'bad'}"><span class="coil-symbol">─( )─</span><span class="coil-tag">${r.coil}</span><span class="coil-state">${energized?'ENERGIZED':'OFF'}</span></span><span class="wire ${energized?'live':''}"></span></div></div>`}).join('')}
+function renderInstructions(d){
+ const monitor=d.ladder_monitor;if(!monitor)return;
+ const t=monitor.ton;
+ document.getElementById('tonflags').textContent=`EN=${+t.en} · TT=${+t.tt} · DN=${+t.dn}`;
+ document.getElementById('tonprogress').max=t.pre_ms;
+ document.getElementById('tonprogress').value=t.acc_ms;
+ document.getElementById('tontext').textContent=`${t.acc_ms} / ${t.pre_ms} ms`;
+ document.getElementById('instructions').innerHTML=monitor.instructions.map(x=>{
+  const active=!!x.condition;
+  let explanation=x.type==='XIC'?'TRUE when tag is TRUE':x.type==='XIO'?'TRUE when tag is FALSE':
+   x.type==='OTE'?'Non-retentive output indication':x.type==='OTL'?'Set/latch condition (existing alarm behavior)':
+   x.type==='OTU'?'Cleared latch indication (existing reset behavior)':'On-delay timer, scan-sampled';
+  return `<div class="instruction ${active?'active':''}"><div class="type">${x.type} <span class="sub">RUNG ${String(x.rung).padStart(3,'0')}</span></div>
+  <div class="tag">${x.tag}</div><div class="value ${active?'true':'false'}">Condition: ${active?'TRUE':'FALSE'} · Tag: ${x.value?'TRUE':'FALSE'}</div>
+  <div class="sub" style="font-size:12px;margin-top:6px">${explanation}</div></div>`
+ }).join('');
+}
+function render(){if(!s)return;renderLadder(s);renderInstructions(s);document.getElementById('state').textContent=s.state;document.getElementById('perm').textContent='Dispatch permissives: '+(s.permissives?'ALL TRUE':'NOT SATISFIED')+' | Dispatch allowed: '+(s.dispatch_permitted?'YES':'NO');document.getElementById('mode').textContent=s.auto_enabled?'AUTO':'MANUAL';document.getElementById('interval').textContent=s.scan_interval_ms+' ms';document.getElementById('ticks').textContent=s.ticks;document.getElementById('connection').textContent='ONLINE';document.getElementById('start').disabled=s.auto_enabled;document.getElementById('stop').disabled=!s.auto_enabled;document.getElementById('manual').disabled=s.auto_enabled;document.getElementById('inputs').innerHTML=Object.entries(names).map(([k,n])=>`<div class="item">${n}<br><strong class="${s.inputs[k]?'on':'off'}">${s.inputs[k]?'TRUE':'FALSE'}</strong><br><button onclick="toggle('${k}')">Toggle</button></div>`).join('');document.getElementById('active').textContent=s.active_faults.join(' · ')||'None';document.getElementById('alarms').textContent=s.alarms.join(' · ')||'None';document.getElementById('log').textContent=s.log.slice().reverse().map(e=>`${String(e.tick).padStart(5,'0')} | ${e.state} | dispatch permitted: ${e.dispatch_permitted} | alarms: ${e.alarms.join(',')||'none'}`).join('\n')||'No scans yet.'}
+async function refresh(){if(polling||busy)return;polling=true;try{s=await request('status');render();document.getElementById('error').textContent=''}catch(e){document.getElementById('connection').textContent='OFFLINE';document.getElementById('error').textContent='API connection failed: '+e.message}finally{polling=false}}
+refresh();setInterval(refresh,250);
+</script></body></html>
